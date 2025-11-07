@@ -141,34 +141,52 @@ const Navbar3D = () => {
 
   // GitHub Pages compatible resume download
   const handleResumeDownload = () => {
-    try {
-      // Get the base URL for GitHub Pages
-      const baseUrl = window.location.origin;
-      
-      // Use absolute path for GitHub Pages
-      const resumePath = `${baseUrl}/resume/Prabhakaran-S.pdf`;
-      
-      // Create download link
-      const link = document.createElement('a');
-      link.href = resumePath;
-      link.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
-      
-      // For GitHub Pages, we need to open in new tab as download might be blocked
-      // due to CORS or GitHub Pages restrictions
-      window.open(resumePath, '_blank', 'noopener,noreferrer');
-      
-    } catch (error) {
-      console.error('Download failed:', error);
-      
-      // Final fallback - try relative path
-      const fallbackLink = document.createElement('a');
-      fallbackLink.href = '/resume/Prabhakaran-S.pdf';
-      fallbackLink.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
-      document.body.appendChild(fallbackLink);
-      fallbackLink.click();
-      document.body.removeChild(fallbackLink);
+  try {
+    // Get the base URL for GitHub Pages
+    const baseUrl = window.location.origin;
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    
+    let resumePath;
+    
+    if (isGitHubPages) {
+      // For GitHub Pages deployment with base path
+      resumePath = `${baseUrl}/portfolio-web/resume/Prabhakaran-S.pdf`;
+    } else {
+      // For local development
+      resumePath = '/resume/Prabhakaran-S.pdf';
     }
-  };
+    
+    console.log('Resume path:', resumePath); // Debug log
+    
+    // For GitHub Pages, open in new tab
+    window.open(resumePath, '_blank', 'noopener,noreferrer');
+    
+  } catch (error) {
+    console.error('Download failed:', error);
+    
+    // Final fallback - try different paths
+    const fallbackPaths = [
+      '/portfolio-web/resume/Prabhakaran-S.pdf',
+      '/resume/Prabhakaran-S.pdf',
+      './resume/Prabhakaran-S.pdf'
+    ];
+    
+    for (const path of fallbackPaths) {
+      try {
+        const fallbackLink = document.createElement('a');
+        fallbackLink.href = path;
+        fallbackLink.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
+        document.body.appendChild(fallbackLink);
+        fallbackLink.click();
+        document.body.removeChild(fallbackLink);
+        console.log('Fallback successful with path:', path);
+        break;
+      } catch (fallbackError) {
+        console.log('Fallback failed for path:', path);
+      }
+    }
+  }
+};
 
   const handleLogoClick = () => {
     scrollToSection('hero'); // Scroll to hero section (home)
