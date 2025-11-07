@@ -139,83 +139,35 @@ const Navbar3D = () => {
   // Mobile menu state
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Fixed resume download function
+  // GitHub Pages compatible resume download
   const handleResumeDownload = () => {
     try {
-      // Try different possible paths for the resume
-      const possiblePaths = [
-        '/resume/Prabhakaran-S.pdf',
-        '/Prabhakaran-S.pdf',
-        './resume/Prabhakaran-S.pdf',
-        '../resume/Prabhakaran-S.pdf',
-        '../../resume/Prabhakaran-S.pdf'
-      ];
-
-      let resumeFound = false;
+      // Get the base URL for GitHub Pages
+      const baseUrl = window.location.origin;
       
-      for (const resumePath of possiblePaths) {
-        const link = document.createElement('a');
-        link.href = resumePath;
-        link.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
-        
-        // Create a test to check if file exists
-        fetch(resumePath, { method: 'HEAD' })
-          .then(response => {
-            if (response.ok) {
-              resumeFound = true;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              console.log('Resume downloaded successfully from:', resumePath);
-            }
-          })
-          .catch(error => {
-            console.log('File not found at:', resumePath);
-          });
-      }
-
-      // If no file found after a short delay, open in new tab
-      setTimeout(() => {
-        if (!resumeFound) {
-          console.warn('Resume file not found in any path, opening in new tab');
-          // Fallback: Try to open the most common path in new tab
-          window.open('/resume/Prabhakaran-S.pdf', '_blank', 'noopener,noreferrer');
-        }
-      }, 1000);
-
+      // Use absolute path for GitHub Pages
+      const resumePath = `${baseUrl}/resume/Prabhakaran-S.pdf`;
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = resumePath;
+      link.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
+      
+      // For GitHub Pages, we need to open in new tab as download might be blocked
+      // due to CORS or GitHub Pages restrictions
+      window.open(resumePath, '_blank', 'noopener,noreferrer');
+      
     } catch (error) {
       console.error('Download failed:', error);
-      // Final fallback
-      window.open('/resume/Prabhakaran-S.pdf', '_blank', 'noopener,noreferrer');
+      
+      // Final fallback - try relative path
+      const fallbackLink = document.createElement('a');
+      fallbackLink.href = '/resume/Prabhakaran-S.pdf';
+      fallbackLink.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
+      document.body.appendChild(fallbackLink);
+      fallbackLink.click();
+      document.body.removeChild(fallbackLink);
     }
-  };
-
-  // Alternative simpler approach - use this if the above doesn't work
-  const handleResumeDownloadSimple = () => {
-    const resumePath = '/resume/Prabhakaran-S.pdf';
-    const link = document.createElement('a');
-    
-    // Method 1: Try direct download
-    link.href = resumePath;
-    link.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
-    
-    // Method 2: Check if file exists first
-    fetch(resumePath)
-      .then(response => {
-        if (response.ok) {
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } else {
-          // If file doesn't exist, open in new tab
-          window.open(resumePath, '_blank', 'noopener,noreferrer');
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching resume:', error);
-        // Fallback: open in new tab
-        window.open(resumePath, '_blank', 'noopener,noreferrer');
-      });
   };
 
   const handleLogoClick = () => {
@@ -278,7 +230,7 @@ const Navbar3D = () => {
               <div className="mobile-resume-btn">
                 <button
                   className="resume-download-btn"
-                  onClick={handleResumeDownloadSimple} // Using the simpler version
+                  onClick={handleResumeDownload}
                 >
                   <Download size={16} />
                   Resume
@@ -296,7 +248,7 @@ const Navbar3D = () => {
           >
             <motion.button
               className="resume-download-btn"
-              onClick={handleResumeDownloadSimple} // Using the simpler version
+              onClick={handleResumeDownload}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
