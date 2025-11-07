@@ -45,14 +45,41 @@ const Contact = () => {
       [e.target.name]: e.target.value
     });
   };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ name: '', email: '', message: '' });
+
+    try {
+      // For development (comment out when deploying)
+      const res = await fetch("http://localhost:5000/api/sendMail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      // For production with serverless function (uncomment when deploying)
+      // const res = await fetch("/api/sendMail", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(formData),
+      // });
+
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+
+      if (data.success) {
+        alert("Message sent successfully!");
+        setFormData({ name: "", email: "", message: "" });
+      } else {
+        alert(data.message || "Failed to send message. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong. Please try again later.");
+    }
   };
+
+
+
 
   const socialLinks = [
     {
@@ -84,15 +111,15 @@ const Contact = () => {
         <motion.h2 variants={itemVariants} className="section-title">
           Get In Touch
         </motion.h2>
-        
+
         <div className="contact-content">
           <motion.div variants={itemVariants} className="contact-info">
             <h3 className="contact-subtitle">Let's Connect</h3>
             <p className="contact-description">
-              I'm always open to discussing new opportunities, innovative projects, 
+              I'm always open to discussing new opportunities, innovative projects,
               and collaboration ideas. Feel free to reach out!
             </p>
-            
+
             <div className="contact-details">
               <div className="contact-item">
                 <Mail className="contact-icon" />
@@ -103,7 +130,7 @@ const Contact = () => {
                   </a>
                 </div>
               </div>
-              
+
               <div className="contact-item">
                 <MapPin className="contact-icon" />
                 <div>
@@ -112,7 +139,7 @@ const Contact = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="social-links">
               <h4 className="social-title">Follow Me</h4>
               <div className="social-icons">
@@ -134,7 +161,7 @@ const Contact = () => {
               </div>
             </div>
           </motion.div>
-          
+
           <motion.div variants={itemVariants} className="contact-form-container">
             <form className="contact-form" onSubmit={handleSubmit}>
               <div className="form-group">
@@ -149,7 +176,7 @@ const Contact = () => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="email" className="form-label">Email</label>
                 <input
@@ -162,7 +189,7 @@ const Contact = () => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="message" className="form-label">Message</label>
                 <textarea
@@ -175,7 +202,7 @@ const Contact = () => {
                   required
                 ></textarea>
               </div>
-              
+
               <motion.button
                 type="submit"
                 className="submit-btn"

@@ -34,15 +34,33 @@
   gap: 2rem;
 }
 
-.logo-text {
-  font-size: 1.8rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
+/* Logo Styles */
+.nav-logo {
   justify-self: start;
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  height: 100px; /* Adjust based on your logo size */
+  width: auto;
+  object-fit: contain;
+  transition: all 0.3s ease;
+  filter: brightness(0) invert(1); /* Makes logo white */
+}
+
+.logo-image:hover {
+  transform: scale(1.05);
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(0, 255, 136, 0.5));
+}
+
+/* Alternative: If you want to keep original logo colors */
+.logo-image.original {
+  filter: none;
+}
+
+.logo-image.original:hover {
+  filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5));
 }
 
 .nav-links {
@@ -185,8 +203,8 @@
     font-size: 0.85rem;
   }
   
-  .logo-text {
-    font-size: 1.6rem;
+  .logo-image {
+    height: 45px;
   }
   
   .resume-download-btn {
@@ -208,6 +226,10 @@
   .nav-link {
     padding: 0.5rem 0.8rem;
     font-size: 0.8rem;
+  }
+  
+  .logo-image {
+    height: 40px;
   }
 }
 
@@ -231,6 +253,10 @@
   .nav-container {
     padding: 0 1rem;
     grid-template-columns: 1fr auto;
+  }
+  
+  .logo-image {
+    height: 35px;
   }
   
   /* Mobile Menu */
@@ -270,8 +296,8 @@
     height: 80px;
   }
   
-  .logo-text {
-    font-size: 1.4rem;
+  .logo-image {
+    height: 30px;
   }
   
   .navbar-2d {

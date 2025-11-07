@@ -7,6 +7,9 @@ import { motion } from 'framer-motion';
 import { Download } from 'lucide-react';
 import './Navbar3D.css';
 
+// Import your logo
+import logo from '../../assets/logoProtfolio.png';
+
 // Individual Navbar Item Component
 const NavbarItem = ({ item, index, totalItems, active, setActive, scrollToSection }) => {
   const meshRef = useRef();
@@ -160,11 +163,6 @@ const Navbar3D = () => {
     }
   };
 
-  // Alternative: Simple version that always works
-  // const handleResumeDownload = () => {
-  //   window.open('/resume/Prabhakaran-S.pdf', '_blank');
-  // };
-
   return (
     <>
       <Navbar3DScene />
@@ -177,7 +175,12 @@ const Navbar3D = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="logo-text">Prabhakaran</span>
+            {/* Logo Image */}
+            <img 
+              src={logo} 
+              alt="Prabhakaran Portfolio Logo" 
+              className="logo-image"
+            />
           </motion.div>
           
           <motion.ul 
