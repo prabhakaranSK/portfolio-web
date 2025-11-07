@@ -4,32 +4,32 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useSpring, a } from '@react-spring/three';
 import { Text, Float } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Download, Menu, X } from 'lucide-react';
 import './Navbar3D.css';
 
 // Import your logo
 import logo from '../../assets/logoProtfolio.png';
 
-// Individual Navbar Item Component
+// Individual Navbar Item Component (3D)
 const NavbarItem = ({ item, index, totalItems, active, setActive, scrollToSection }) => {
   const meshRef = useRef();
 
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime + index) * 0.1;
-      meshRef.current.position.y = Math.sin(state.clock.elapsedTime + index) * 0.1;
+      meshRef.current.position.y = Math.sin(state.clock.elapsedTime + index) * 0.06;
     }
   });
 
   const { scale } = useSpring({
-    scale: active === item.name ? 1.3 : 1,
+    scale: active === item.name ? 1.15 : 1,
     config: { mass: 1, tension: 280, friction: 60 }
   });
 
-  const positionX = (index - (totalItems - 1) / 2) * 1.8;
+  const positionX = (index - (totalItems - 1) / 2) * 1.6;
 
   return (
-    <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
+    <Float speed={1.2} rotationIntensity={0.5} floatIntensity={0.6}>
       <a.mesh
         ref={meshRef}
         position={[positionX, 0, 0]}
@@ -40,18 +40,18 @@ const NavbarItem = ({ item, index, totalItems, active, setActive, scrollToSectio
         castShadow
         receiveShadow
       >
-        <boxGeometry args={[1.6, 0.4, 0.15]} />
-        <meshStandardMaterial 
+        <boxGeometry args={[1.6, 0.38, 0.12]} />
+        <meshStandardMaterial
           color={active === item.name ? "#00ff88" : "#0066ff"}
           emissive={active === item.name ? "#00ff88" : "#0066ff"}
-          emissiveIntensity={0.3}
+          emissiveIntensity={0.28}
           metalness={0.9}
-          roughness={0.1}
+          roughness={0.12}
           transparent
-          opacity={0.9}
+          opacity={0.92}
         />
         <Text
-          position={[0, 0, 0.1]}
+          position={[0, 0, 0.07]}
           fontSize={0.12}
           color="#ffffff"
           anchorX="center"
@@ -66,7 +66,7 @@ const NavbarItem = ({ item, index, totalItems, active, setActive, scrollToSectio
 
 const Navbar3DContent = () => {
   const [active, setActive] = useState(null);
-  
+
   const navItems = [
     { name: 'Home', section: 'hero' },
     { name: 'About', section: 'about' },
@@ -78,9 +78,7 @@ const Navbar3DContent = () => {
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (element) element.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -111,11 +109,12 @@ const Navbar3DScene = () => {
           position: 'absolute',
           top: '0',
           left: '0',
-          zIndex: '1',
+          zIndex: 1,
+          pointerEvents: 'none' // ensure canvas does not block UI clicks
         }}
       >
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
+        <ambientLight intensity={0.6} />
+        <pointLight position={[10, 10, 10]} intensity={1.0} />
         <Navbar3DContent />
       </Canvas>
     </div>
@@ -134,85 +133,105 @@ const Navbar3D = () => {
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (element) element.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Fixed Resume Download Function
+  // Mobile menu state
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const handleResumeDownload = () => {
     try {
-      // Use forward slashes for web paths (not backslashes)
       const resumeUrl = '/resume/Prabhakaran-S.pdf';
-      
-      // Method 1: Download with proper filename
       const link = document.createElement('a');
       link.href = resumeUrl;
       link.download = 'Prabhakaran_FullStack_Blockchain_Developer.pdf';
       link.setAttribute('type', 'application/pdf');
-      
-      // Append to body, click, and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
     } catch (error) {
       console.error('Download failed, opening in new tab:', error);
-      // Fallback: Open in new tab if download fails
       window.open('/resume/Prabhakaran-S.pdf', '_blank', 'noopener,noreferrer');
     }
+  };
+
+  const handleLogoClick = () => {
+    scrollToSection('hero'); // Scroll to hero section (home)
+    setMenuOpen(false); // Close mobile menu if open
+  };
+
+  // Close mobile menu on navigation
+  const handleNavClick = (section) => {
+    scrollToSection(section);
+    setMenuOpen(false);
   };
 
   return (
     <>
       <Navbar3DScene />
-      
+
       <nav className="navbar-2d">
         <div className="nav-container">
-          <motion.div 
+          <motion.div
             className="nav-logo"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            {/* Logo Image */}
-            <img 
+             <img 
               src={logo} 
               alt="Prabhakaran Portfolio Logo" 
-              className="logo-image"
+              className="logo-image cursor-pointer"
+              onClick={handleLogoClick}
+              style={{ cursor: 'pointer' }}
             />
           </motion.div>
-          
-          <motion.ul 
-            className="nav-links"
+
+          {/* Desktop / regular nav */}
+          <motion.ul
+            className={`nav-links ${menuOpen ? 'mobile-open' : ''}`}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             {navItems.map((item, index) => (
-              <motion.li 
+              <motion.li
                 key={item.name}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.06 }}
               >
-                <button 
-                  onClick={() => scrollToSection(item.section)}
+                <button
+                  onClick={() => handleNavClick(item.section)}
                   className="nav-link"
                 >
                   {item.name}
                 </button>
               </motion.li>
             ))}
+
+            {/* Mobile resume button - only visible in mobile menu */}
+            {menuOpen && (
+              <div className="mobile-resume-btn">
+                <button
+                  className="resume-download-btn"
+                  onClick={handleResumeDownload}
+                >
+                  <Download size={16} />
+                  Resume
+                </button>
+              </div>
+            )}
           </motion.ul>
 
-          <motion.div 
+          {/* Resume button (desktop only) */}
+          <motion.div
             className="resume-button-container"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <motion.button 
+            <motion.button
               className="resume-download-btn"
               onClick={handleResumeDownload}
               whileHover={{ scale: 1.05 }}
@@ -222,6 +241,16 @@ const Navbar3D = () => {
               Resume
             </motion.button>
           </motion.div>
+
+          {/* Mobile menu toggle */}
+          <button
+            className="mobile-menu-btn"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((s) => !s)}
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
       </nav>
     </>
