@@ -141,65 +141,19 @@ const Navbar3D = () => {
 
 
   const handleResumeDownload = () => {
-  console.log('Current URL:', window.location.href);
-  console.log('Hostname:', window.location.hostname);
-
-  const isGitHubPages = window.location.hostname.includes('github.io');
-
-  const testPaths = isGitHubPages ? [
-
-    '/portfolio-web/resume/Prabhakaran-S.pdf',
-    `${window.location.origin}/portfolio-web/resume/Prabhakaran-S.pdf`,
-    './resume/Prabhakaran-S.pdf',
-    '/resume/Prabhakaran-S.pdf'
-  ] : [
-    '/resume/Prabhakaran-S.pdf',
-    `${window.location.origin}/resume/Prabhakaran-S.pdf`,
-    './resume/Prabhakaran-S.pdf',
-    'resume/Prabhakaran-S.pdf'
-  ];
-
-  console.log('Testing paths:', testPaths);
-
-  let downloadAttempted = false;
-
-  const tryDownload = async (index = 0) => {
-    if (index >= testPaths.length || downloadAttempted) {
-      if (!downloadAttempted) {
-        console.error('All paths failed');
-        alert('Could not download resume. Please try again or contact me directly.');
-      }
-      return;
-    }
-
-    const path = testPaths[index];
-    console.log(`Trying path ${index + 1}: ${path}`);
-
-    try {
-      const response = await fetch(path, { method: 'HEAD' });
-      if (response.ok) {
-        console.log(`File found at: ${path}`);
-        downloadAttempted = true;
-
-        const link = document.createElement('a');
-        link.href = path;
-        link.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        console.log(`File not found at: ${path} (Status: ${response.status})`);
-       
-        tryDownload(index + 1);
-      }
-    } catch (error) {
-      console.log(`Error accessing: ${path}`, error);
-      tryDownload(index + 1);
-    }
-  };
-
-  tryDownload();
+  
+  const resumePath = '/resume/Prabhakaran-S.pdf';
+  
+  console.log('Downloading resume from:', resumePath);
+  
+  const link = document.createElement('a');
+  link.href = resumePath;
+  link.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
+
 
   const handleLogoClick = () => {
     scrollToSection('hero');
