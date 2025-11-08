@@ -1,0 +1,60 @@
+/* src/components/UI/Notification.css */
+.notification {
+  position: fixed;
+  top: 100px; /* Adjust this value based on your navbar height */
+  right: 20px;
+  z-index: 9999; /* Very high z-index to ensure it's above everything */
+  background: var(--notification-bg);
+  color: white;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.notification * {
+  z-index: 10001;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notification-icon {
+  flex-shrink: 0;
+}
+
+.notification-message {
+  flex: 1;
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.notification-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Add these CSS variables to your root CSS file or Contact.css */
+:root {
+  --success-color: #10b981;
+  --error-color: #ef4444;
+}

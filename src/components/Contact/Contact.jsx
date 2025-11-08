@@ -1,8 +1,9 @@
 // src/components/Contact/Contact.jsx
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Mail, Github, Linkedin, Send, MapPin } from 'lucide-react';
+import Notification from '../UI/Notification';
 import './Contact.css';
 
 const Contact = () => {
@@ -16,6 +17,28 @@ const Contact = () => {
     email: '',
     message: ''
   });
+
+  const [notification, setNotification] = useState({
+    show: false,
+    message: '',
+    type: '' // 'success' or 'error'
+  });
+
+  const showNotification = (message, type) => {
+    setNotification({
+      show: true,
+      message,
+      type
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification({
+      show: false,
+      message: '',
+      type: ''
+    });
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -65,19 +88,16 @@ const Contact = () => {
       const data = text ? JSON.parse(text) : {};
 
       if (data.success) {
-        alert("Message sent successfully!");
+        showNotification("Message sent successfully! I'll get back to you soon.", 'success');
         setFormData({ name: "", email: "", message: "" });
       } else {
-        alert(data.message || "Failed to send message. Please try again.");
+        showNotification(data.message || "Failed to send message. Please try again.", 'error');
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Something went wrong. Please try again later.");
+      showNotification("Something went wrong. Please try again later.", 'error');
     }
   };
-
-
-
 
   const socialLinks = [
     {
@@ -98,123 +118,136 @@ const Contact = () => {
   ];
 
   return (
-    <section id="contact" className="contact-section">
-      <motion.div
-        ref={ref}
-        className="contact-container"
-        variants={containerVariants}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-      >
-        <motion.h2 variants={itemVariants} className="section-title">
-          Get In Touch
-        </motion.h2>
+    <>
+      <AnimatePresence>
+        {notification.show && (
+          <Notification
+            message={notification.message}
+            type={notification.type}
+            onClose={hideNotification}
+            duration={5000}
+          />
+        )}
+      </AnimatePresence>
 
-        <div className="contact-content">
-          <motion.div variants={itemVariants} className="contact-info">
-            <h3 className="contact-subtitle">Let's Connect</h3>
-            <p className="contact-description">
-              I'm always open to discussing new opportunities, innovative projects,
-              and collaboration ideas. Feel free to reach out!
-            </p>
+      <section id="contact" className="contact-section">
+        <motion.div
+          ref={ref}
+          className="contact-container"
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+        >
+          <motion.h2 variants={itemVariants} className="section-title">
+            Get In Touch
+          </motion.h2>
 
-            <div className="contact-details">
-              <div className="contact-item">
-                <Mail className="contact-icon" />
-                <div>
-                  <span className="contact-label">Email</span>
-                  <a href="mailto:sprabhakaran950@gmail.com" className="contact-value">
-                    sprabhakaran950@gmail.com
-                  </a>
+          <div className="contact-content">
+            <motion.div variants={itemVariants} className="contact-info">
+              <h3 className="contact-subtitle">Let's Connect</h3>
+              <p className="contact-description">
+                I'm always open to discussing new opportunities, innovative projects,
+                and collaboration ideas. Feel free to reach out!
+              </p>
+
+              <div className="contact-details">
+                <div className="contact-item">
+                  <Mail className="contact-icon" />
+                  <div>
+                    <span className="contact-label">Email</span>
+                    <a href="mailto:sprabhakaran950@gmail.com" className="contact-value">
+                      sprabhakaran950@gmail.com
+                    </a>
+                  </div>
+                </div>
+
+                <div className="contact-item">
+                  <MapPin className="contact-icon" />
+                  <div>
+                    <span className="contact-label">Location</span>
+                    <span className="contact-value">India</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="contact-item">
-                <MapPin className="contact-icon" />
-                <div>
-                  <span className="contact-label">Location</span>
-                  <span className="contact-value">India</span>
+              <div className="social-links">
+                <h4 className="social-title">Follow Me</h4>
+                <div className="social-icons">
+                  {socialLinks.map((social, index) => (
+                    <motion.a
+                      key={social.label}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="social-link"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {social.icon}
+                      <span className="social-tooltip">{social.label}</span>
+                    </motion.a>
+                  ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="social-links">
-              <h4 className="social-title">Follow Me</h4>
-              <div className="social-icons">
-                {socialLinks.map((social, index) => (
-                  <motion.a
-                    key={social.label}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-link"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    {social.icon}
-                    <span className="social-tooltip">{social.label}</span>
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+            <motion.div variants={itemVariants} className="contact-form-container">
+              <form className="contact-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label htmlFor="name" className="form-label">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
 
-          <motion.div variants={itemVariants} className="contact-form-container">
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="name" className="form-label">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                />
-              </div>
+                <div className="form-group">
+                  <label htmlFor="email" className="form-label">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                />
-              </div>
+                <div className="form-group">
+                  <label htmlFor="message" className="form-label">Message</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    className="form-textarea"
+                    rows="5"
+                    required
+                  ></textarea>
+                </div>
 
-              <div className="form-group">
-                <label htmlFor="message" className="form-label">Message</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  className="form-textarea"
-                  rows="5"
-                  required
-                ></textarea>
-              </div>
-
-              <motion.button
-                type="submit"
-                className="submit-btn"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Send size={20} />
-                Send Message
-              </motion.button>
-            </form>
-          </motion.div>
-        </div>
-      </motion.div>
-    </section>
+                <motion.button
+                  type="submit"
+                  className="submit-btn"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Send size={20} />
+                  Send Message
+                </motion.button>
+              </form>
+            </motion.div>
+          </div>
+        </motion.div>
+      </section>
+    </>
   );
 };
 
