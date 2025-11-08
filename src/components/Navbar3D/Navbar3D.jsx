@@ -139,61 +139,73 @@ const Navbar3D = () => {
   // Mobile menu state
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // GitHub Pages compatible resume download
+
   const handleResumeDownload = () => {
-  try {
-    // Get the base URL for GitHub Pages
-    const baseUrl = window.location.origin;
-    const isGitHubPages = window.location.hostname.includes('github.io');
-    
-    let resumePath;
-    
-    if (isGitHubPages) {
-      // For GitHub Pages deployment with base path
-      resumePath = `${baseUrl}/portfolio-web/resume/Prabhakaran-S.pdf`;
-    } else {
-      // For local development
-      resumePath = '/resume/Prabhakaran-S.pdf';
-    }
-    
-    console.log('Resume path:', resumePath); // Debug log
-    
-    // For GitHub Pages, open in new tab
-    window.open(resumePath, '_blank', 'noopener,noreferrer');
-    
-  } catch (error) {
-    console.error('Download failed:', error);
-    
-    // Final fallback - try different paths
-    const fallbackPaths = [
-      '/portfolio-web/resume/Prabhakaran-S.pdf',
-      '/resume/Prabhakaran-S.pdf',
-      './resume/Prabhakaran-S.pdf'
-    ];
-    
-    for (const path of fallbackPaths) {
-      try {
-        const fallbackLink = document.createElement('a');
-        fallbackLink.href = path;
-        fallbackLink.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
-        document.body.appendChild(fallbackLink);
-        fallbackLink.click();
-        document.body.removeChild(fallbackLink);
-        console.log('Fallback successful with path:', path);
-        break;
-      } catch (fallbackError) {
-        console.log('Fallback failed for path:', path);
+  console.log('Current URL:', window.location.href);
+  console.log('Hostname:', window.location.hostname);
+
+  const isGitHubPages = window.location.hostname.includes('github.io');
+
+  const testPaths = isGitHubPages ? [
+
+    '/portfolio-web/resume/Prabhakaran-S.pdf',
+    `${window.location.origin}/portfolio-web/resume/Prabhakaran-S.pdf`,
+    './resume/Prabhakaran-S.pdf',
+    '/resume/Prabhakaran-S.pdf'
+  ] : [
+    '/resume/Prabhakaran-S.pdf',
+    `${window.location.origin}/resume/Prabhakaran-S.pdf`,
+    './resume/Prabhakaran-S.pdf',
+    'resume/Prabhakaran-S.pdf'
+  ];
+
+  console.log('Testing paths:', testPaths);
+
+  let downloadAttempted = false;
+
+  const tryDownload = async (index = 0) => {
+    if (index >= testPaths.length || downloadAttempted) {
+      if (!downloadAttempted) {
+        console.error('All paths failed');
+        alert('Could not download resume. Please try again or contact me directly.');
       }
+      return;
     }
-  }
+
+    const path = testPaths[index];
+    console.log(`Trying path ${index + 1}: ${path}`);
+
+    try {
+      const response = await fetch(path, { method: 'HEAD' });
+      if (response.ok) {
+        console.log(`File found at: ${path}`);
+        downloadAttempted = true;
+
+        const link = document.createElement('a');
+        link.href = path;
+        link.download = 'Prabhakaran_FullStack_Developer_Resume.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        console.log(`File not found at: ${path} (Status: ${response.status})`);
+       
+        tryDownload(index + 1);
+      }
+    } catch (error) {
+      console.log(`Error accessing: ${path}`, error);
+      tryDownload(index + 1);
+    }
+  };
+
+  tryDownload();
 };
 
   const handleLogoClick = () => {
-    scrollToSection('hero'); // Scroll to hero section (home)
-    setMenuOpen(false); // Close mobile menu if open
+    scrollToSection('hero');
+    setMenuOpen(false);
   };
 
-  // Close mobile menu on navigation
   const handleNavClick = (section) => {
     scrollToSection(section);
     setMenuOpen(false);
@@ -211,9 +223,9 @@ const Navbar3D = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-             <img 
-              src={logo} 
-              alt="Prabhakaran Portfolio Logo" 
+            <img
+              src={logo}
+              alt="Prabhakaran Portfolio Logo"
               className="logo-image cursor-pointer"
               onClick={handleLogoClick}
               style={{ cursor: 'pointer' }}
