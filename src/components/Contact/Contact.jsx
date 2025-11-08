@@ -45,23 +45,21 @@ const Contact = () => {
       [e.target.name]: e.target.value
     });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Use different URLs based on environment
+    const baseURL = import.meta.env.PROD
+      ? "https://portfolio-api-ruddy.vercel.app"
+      : "http://localhost:5000";
+
     try {
-      // For development (comment out when deploying)
-      const res = await fetch("http://localhost:5000/api/sendMail", {
+      const res = await fetch(`${baseURL}/api/sendMail`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
-      // For production with serverless function (uncomment when deploying)
-      // const res = await fetch("/api/sendMail", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(formData),
-      // });
 
       const text = await res.text();
       const data = text ? JSON.parse(text) : {};
