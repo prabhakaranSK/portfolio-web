@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Mail, Github, Linkedin, Send, MapPin } from 'lucide-react';
+import { Mail, Github, Linkedin, Send, MapPin, Loader2 } from 'lucide-react';
 import Notification from '../UI/Notification';
 import './Contact.css';
 
@@ -21,7 +21,12 @@ const Contact = () => {
   const [notification, setNotification] = useState({
     show: false,
     message: '',
-    type: '' // 'success' or 'error'
+    type: ''
+  });
+
+  const [buttonState, setButtonState] = useState({
+    isLoading: false,
+    isSuccess: false
   });
 
   const showNotification = (message, type) => {
@@ -72,6 +77,9 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Set loading state
+    setButtonState({ isLoading: true, isSuccess: false });
+
     // Use different URLs based on environment
     const baseURL = import.meta.env.PROD
       ? "https://portfolio-api-ruddy.vercel.app"
@@ -88,15 +96,51 @@ const Contact = () => {
       const data = text ? JSON.parse(text) : {};
 
       if (data.success) {
+        // Set success state
+        setButtonState({ isLoading: false, isSuccess: true });
         showNotification("Message sent successfully! I'll get back to you soon.", 'success');
         setFormData({ name: "", email: "", message: "" });
+        
+        // Reset button to normal after 2 seconds
+        setTimeout(() => {
+          setButtonState({ isLoading: false, isSuccess: false });
+        }, 2000);
       } else {
+        setButtonState({ isLoading: false, isSuccess: false });
         showNotification(data.message || "Failed to send message. Please try again.", 'error');
       }
     } catch (error) {
       console.error("Error:", error);
+      setButtonState({ isLoading: false, isSuccess: false });
       showNotification("Something went wrong. Please try again later.", 'error');
     }
+  };
+
+  const getButtonContent = () => {
+    if (buttonState.isLoading) {
+      return (
+        <>
+          <Loader2 className="button-icon spinning" />
+          Sending Message...
+        </>
+      );
+    }
+    
+    if (buttonState.isSuccess) {
+      return (
+        <>
+          <Send className="button-icon" />
+          Message Sent!
+        </>
+      );
+    }
+    
+    return (
+      <>
+        <Send className="button-icon" />
+        Send Message
+      </>
+    );
   };
 
   const socialLinks = [
@@ -204,6 +248,7 @@ const Contact = () => {
                     onChange={handleChange}
                     className="form-input"
                     required
+                    disabled={buttonState.isLoading}
                   />
                 </div>
 
@@ -217,6 +262,7 @@ const Contact = () => {
                     onChange={handleChange}
                     className="form-input"
                     required
+                    disabled={buttonState.isLoading}
                   />
                 </div>
 
@@ -230,17 +276,21 @@ const Contact = () => {
                     className="form-textarea"
                     rows="5"
                     required
+                    disabled={buttonState.isLoading}
                   ></textarea>
                 </div>
 
                 <motion.button
                   type="submit"
-                  className="submit-btn"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className={`submit-btn ${
+                    buttonState.isLoading ? 'loading' : 
+                    buttonState.isSuccess ? 'success' : ''
+                  }`}
+                  whileHover={!buttonState.isLoading ? { scale: 1.05 } : {}}
+                  whileTap={!buttonState.isLoading ? { scale: 0.95 } : {}}
+                  disabled={buttonState.isLoading}
                 >
-                  <Send size={20} />
-                  Send Message
+                  {getButtonContent()}
                 </motion.button>
               </form>
             </motion.div>
